@@ -28,23 +28,24 @@ class HestonVanilla:
 
         return cf
 
-    def heston_price(self,S0, K, T, r, kappa, v0, theta, sigma, rho):
-        params = (S0, T, r, kappa, v0, theta, sigma, rho)
-        P1 = torch.full_like(S0, 0.5, device=S0.device)
-        P2 = torch.full_like(S0, 0.5, device=S0.device)
+    def heston_price(self):
+        params = (self.S0, self.T, self.r, self.kappa, self.v0, self.theta, self.sigma, self.rho)
+        P1 = torch.full_like(self.S0, 0.5, device=self.S0.device)
+        P2 = torch.full_like(self.S0, 0.5, device=self.S0.device)
         umax = 50
         n = 100
         du = umax / n
         phi = du / 2
         for _ in range(n):
-            factor1 = torch.exp(-1j * phi * torch.log(K))
-            denominator = 1j * phi
-            cf1 = self._heston_cf(phi - 1j, *params) / self._heston_cf(-1j, *params)
+            factor1 = torch.exp(-1j * self.phi * torch.log(self.K))
+            denominator = 1j * self.phi
+            cf1 = self._heston_cf(self.phi - 1j, *params) / self._heston_cf(-1j, *params)
             temp1 = factor1 * cf1 / denominator
             P1 += 1 / torch.pi * torch.real(temp1) * du
-            cf2 = self._heston_cf(phi, *params)
+            cf2 = self._heston_cf(self.phi, *params)
             temp2 = factor1 * cf2 / denominator
             P2 += 1 / torch.pi * torch.real(temp2) * du
             phi += du
-        price = S0 * P1 - torch.exp(-r * T) * K * P2
+        price = self.S0 * P1 - torch.exp(-self.r * self.T) * self.K * P2
+
         return price
