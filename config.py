@@ -1,2 +1,2 @@
 class CONFIG:
-    pass
+    CSV_PATH = ""
